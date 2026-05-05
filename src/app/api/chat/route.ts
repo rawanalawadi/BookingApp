@@ -1,10 +1,13 @@
-import Anthropic from "@anthropic-ai/sdk"
-import { CONSULTANTS } from "@/lib/data"
+export const dynamic = "force-dynamic"
 
-function buildSystemPrompt(): string {
-  const list = CONSULTANTS.map(
+import Anthropic from "@anthropic-ai/sdk"
+import { getConsultantMetas } from "@/lib/consultants-server"
+
+async function buildSystemPrompt(): Promise<string> {
+  const consultants = await getConsultantMetas()
+  const list = consultants.map(
     (c) =>
-      `- **${c.name}** | ${c.specialty} | KWD ${c.hourlyRate}/hr | ID: \`${c.id}\`\n  Specializes in: ${c.tags.join(", ")}\n  ${c.bio.slice(0, 120)}…`
+      `- **${c.name}** | ${c.specialty} | $${c.hourlyRate}/hr | ID: \`${c.id}\`\n  Specializes in: ${c.tags.join(", ")}\n  ${c.bio.slice(0, 120)}…`
   ).join("\n\n")
 
   return `You are a friendly booking assistant for ConsultEase. Help customers pick the right consultant for their needs, then guide them to book.
@@ -33,12 +36,13 @@ export async function POST(req: Request) {
   }
 
   const client = new Anthropic({ apiKey })
+  const systemPrompt = await buildSystemPrompt()
 
   const stream = await client.messages.create({
     model: "claude-haiku-4-5-20251001",
     max_tokens: 300,
     stream: true,
-    system: buildSystemPrompt(),
+    system: systemPrompt,
     messages,
   })
 
