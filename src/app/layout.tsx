@@ -4,6 +4,7 @@ import "./globals.css"
 import { SessionProvider } from "next-auth/react"
 import { Toaster } from "sonner"
 import ConditionalLayout from "@/components/layout/ConditionalLayout"
+import { CurrencyProvider } from "@/contexts/CurrencyContext"
 import { auth } from "@/auth"
 
 const inter = Inter({ subsets: ["latin"] })
@@ -24,10 +25,12 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${inter.className} antialiased bg-white text-gray-900`}>
         <SessionProvider session={session}>
-          <ConditionalLayout>
-            {children}
-          </ConditionalLayout>
-          <Toaster richColors position="top-center" />
+          <CurrencyProvider>
+            <ConditionalLayout>
+              {children}
+            </ConditionalLayout>
+            <Toaster richColors position="top-center" />
+          </CurrencyProvider>
         </SessionProvider>
       </body>
     </html>

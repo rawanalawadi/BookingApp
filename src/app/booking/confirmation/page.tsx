@@ -24,7 +24,7 @@ export default function ConfirmationPage() {
   }, [id])
 
   return (
-    <div className="bg-gray-50 min-h-screen py-16 px-4">
+    <div className="bg-gray-50 min-h-screen py-8 md:py-16 px-4">
       {loading ? (
         <div className="max-w-lg mx-auto space-y-4">
           <Skeleton className="h-20 w-full rounded-2xl" />
@@ -39,7 +39,7 @@ export default function ConfirmationPage() {
             We couldn&apos;t find this booking. It may have been cancelled or the link may be incorrect.
           </p>
           <Link href="/consultants">
-            <Button className="bg-teal-600 hover:bg-teal-700 text-white">Browse Consultants</Button>
+            <Button className="bg-rose-500 hover:bg-rose-600 text-white">Browse Consultants</Button>
           </Link>
         </div>
       ) : (

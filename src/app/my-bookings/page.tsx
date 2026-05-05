@@ -71,8 +71,8 @@ export default function MyBookingsPage() {
   return (
     <div className="bg-gray-50 min-h-screen">
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">My Bookings</h1>
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">My Bookings</h1>
           <p className="text-gray-500">
             {session?.user?.name
               ? `Welcome back, ${session.user.name.split(" ")[0]}!`
@@ -81,23 +81,23 @@ export default function MyBookingsPage() {
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8 space-y-6 md:space-y-8">
         {/* Upcoming */}
         <section>
           <div className="flex items-center gap-2 mb-4">
-            <CalendarDays className="h-5 w-5 text-teal-600" />
+            <CalendarDays className="h-5 w-5 text-rose-500" />
             <h2 className="text-lg font-bold text-gray-900">Upcoming Sessions</h2>
-            <span className="ml-1 bg-teal-100 text-teal-700 text-xs font-semibold px-2 py-0.5 rounded-full">
+            <span className="ml-1 bg-rose-100 text-rose-600 text-xs font-semibold px-2 py-0.5 rounded-full">
               {upcomingBookings.length}
             </span>
           </div>
 
           {upcomingBookings.length === 0 ? (
-            <div className="bg-white rounded-xl border border-gray-100 p-10 text-center text-gray-400">
+            <div className="bg-white rounded-xl border border-gray-100 p-6 md:p-10 text-center text-gray-400">
               <Inbox className="h-10 w-10 mx-auto mb-3 text-gray-300" />
               <p className="text-sm">
                 No upcoming sessions.{" "}
-                <a href="/consultants" className="text-teal-600 hover:underline font-medium">
+                <a href="/consultants" className="text-rose-500 hover:underline font-medium">
                   Browse consultants
                 </a>{" "}
                 to book one.

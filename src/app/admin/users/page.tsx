@@ -56,7 +56,7 @@ export default function AdminUsersPage() {
                   <tr key={user.id} className="hover:bg-gray-50/60 transition-colors">
                     <td className="px-5 py-3.5">
                       <div className="flex items-center gap-3">
-                        <div className="h-8 w-8 rounded-full bg-teal-100 flex items-center justify-center text-xs font-bold text-teal-700 flex-shrink-0">
+                        <div className="h-8 w-8 rounded-full bg-rose-100 flex items-center justify-center text-xs font-bold text-rose-600 flex-shrink-0">
                           {user.name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)}
                         </div>
                         <span className="font-medium text-gray-900">{user.name}</span>

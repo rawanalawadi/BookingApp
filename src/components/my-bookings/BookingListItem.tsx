@@ -21,10 +21,10 @@ export default function BookingListItem({ booking, onCancel }: Props) {
   return (
     <>
       <Card className="border border-gray-100 hover:shadow-md transition-shadow">
-        <CardContent className="p-5">
-          <div className="flex flex-col sm:flex-row gap-4 items-start">
+        <CardContent className="p-4">
+          <div className="flex flex-col sm:flex-row gap-3 items-start">
             {/* Avatar */}
-            <div className="relative h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-teal-100">
+            <div className="relative h-12 w-12 rounded-xl overflow-hidden flex-shrink-0 ring-2 ring-rose-100">
               <Image
                 src={booking.consultantAvatarUrl}
                 alt={booking.consultantName}
@@ -45,29 +45,29 @@ export default function BookingListItem({ booking, onCancel }: Props) {
 
               <div className="mt-3 flex flex-wrap gap-4 text-sm text-gray-600">
                 <div className="flex items-center gap-1.5">
-                  <CalendarDays className="h-4 w-4 text-teal-500" />
+                  <CalendarDays className="h-4 w-4 text-rose-500" />
                   {formatDateDisplay(booking.date)}
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-teal-500" />
+                  <Clock className="h-4 w-4 text-rose-500" />
                   {formatTimeDisplay(booking.timeSlot)}
                 </div>
                 {booking.sessionType && (
                   <div className="flex items-center gap-1.5">
                     {booking.sessionType === "online"
-                      ? <Monitor className="h-4 w-4 text-teal-500" />
-                      : <MapPin className="h-4 w-4 text-teal-500" />}
+                      ? <Monitor className="h-4 w-4 text-rose-500" />
+                      : <MapPin className="h-4 w-4 text-rose-500" />}
                     {booking.sessionType === "online" ? "Online" : "In Person"}
                   </div>
                 )}
-                <div className="font-semibold text-teal-700">
+                <div className="font-semibold text-rose-600">
                   {formatCurrency(booking.hourlyRate)}/hr
                 </div>
               </div>
 
-              {booking.summary && (
+              {booking.notes && (
                 <div className="mt-3 text-sm text-gray-500 bg-gray-50 rounded-lg px-3 py-2">
-                  &ldquo;{booking.summary}&rdquo;
+                  &ldquo;{booking.notes}&rdquo;
                 </div>
               )}
             </div>

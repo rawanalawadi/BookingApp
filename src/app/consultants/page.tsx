@@ -15,15 +15,15 @@ export default function ConsultantsPage() {
     <div className="bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="bg-white border-b border-gray-100">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-          <h1 className="text-3xl font-bold text-gray-900 mb-1">Our Consultants</h1>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 md:py-10">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-1">Our Consultants</h1>
           <p className="text-gray-500">Browse and book sessions with our verified experts.</p>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 md:py-8">
         {/* Filter */}
-        <div className="mb-8">
+        <div className="mb-5 md:mb-8">
           <SpecialtyFilter
             specialties={SPECIALTIES}
             selected={selected}

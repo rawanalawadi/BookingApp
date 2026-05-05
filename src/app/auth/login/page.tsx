@@ -55,11 +55,11 @@ function LoginContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-orange-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader className="text-center pb-2">
           <div className="flex justify-center mb-3">
-            <div className="bg-teal-600 p-3 rounded-xl">
+            <div className="bg-rose-500 p-3 rounded-xl">
               <CalendarCheck className="h-7 w-7 text-white" />
             </div>
           </div>
@@ -124,7 +124,7 @@ function LoginContent() {
             <Button
               type="submit"
               disabled={loading || googleLoading}
-              className="w-full h-11 bg-teal-600 hover:bg-teal-700 text-white font-semibold"
+              className="w-full h-11 bg-rose-500 hover:bg-rose-600 text-white font-semibold"
             >
               {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
               Sign In
@@ -133,7 +133,7 @@ function LoginContent() {
 
           <p className="text-center text-sm text-gray-500 pt-2">
             Don&apos;t have an account?{" "}
-            <Link href="/auth/register" className="text-teal-600 font-semibold hover:underline">
+            <Link href="/auth/register" className="text-rose-500 font-semibold hover:underline">
               Create one
             </Link>
           </p>

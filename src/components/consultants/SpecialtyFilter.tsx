@@ -18,8 +18,8 @@ export default function SpecialtyFilter({ specialties, selected, onSelect }: Pro
           className={cn(
             "px-4 py-1.5 rounded-full text-sm font-medium border transition-colors",
             selected === specialty
-              ? "bg-teal-600 text-white border-teal-600 shadow-sm"
-              : "bg-white text-gray-600 border-gray-200 hover:border-teal-400 hover:text-teal-600"
+              ? "bg-rose-500 text-white border-rose-500 shadow-sm"
+              : "bg-white text-gray-600 border-gray-200 hover:border-rose-400 hover:text-rose-500"
           )}
         >
           {specialty}

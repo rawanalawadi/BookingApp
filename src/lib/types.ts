@@ -21,11 +21,13 @@ export interface Consultant {
 
 export type SessionType = "online" | "in_person"
 
-export type BookingStatus = "confirmed" | "cancelled" | "pending"
+export type BookingStatus = "confirmed" | "cancelled" | "pending" | "completed"
 
 export interface Booking {
   id: string
   userEmail?: string
+  customerName: string
+  customerPhone: string
   consultantId: string
   consultantName: string
   consultantSpecialty: string
@@ -33,7 +35,7 @@ export interface Booking {
   date: string
   timeSlot: string
   sessionType: SessionType
-  summary: string
+  notes?: string
   status: BookingStatus
   createdAt: string
   hourlyRate: number

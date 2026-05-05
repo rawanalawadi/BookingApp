@@ -50,6 +50,18 @@ export function updateBookingStatus(
   return bookings[idx]
 }
 
+export function modifyBookingServer(
+  id: string,
+  fields: Pick<Booking, "date" | "timeSlot" | "sessionType"> & { notes?: string }
+): Booking | null {
+  const bookings = getAllBookings()
+  const idx = bookings.findIndex((b) => b.id === id)
+  if (idx === -1) return null
+  bookings[idx] = { ...bookings[idx], ...fields }
+  saveAllBookings(bookings)
+  return bookings[idx]
+}
+
 export function cancelBookingServer(id: string): boolean {
   const bookings = getAllBookings()
   const idx = bookings.findIndex((b) => b.id === id)

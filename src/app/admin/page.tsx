@@ -2,155 +2,146 @@ import { getAllBookings } from "@/lib/bookings-server"
 import { getConsultantMetas } from "@/lib/consultants-server"
 import { readFileSync } from "fs"
 import path from "path"
-import { Users, UserSquare2, BookOpen, DollarSign, TrendingUp, Clock, XCircle } from "lucide-react"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { format } from "date-fns"
+import Link from "next/link"
+import { Users, UserSquare2, BookOpen, DollarSign, Monitor, MapPin, Clock } from "lucide-react"
 
 function getUserCount(): number {
   try {
     const raw = readFileSync(path.join(process.cwd(), "src/lib/users.json"), "utf-8")
     return JSON.parse(raw).length
-  } catch {
-    return 0
-  }
+  } catch { return 0 }
 }
 
 function formatCurrency(n: number) {
   return new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 0 }).format(n)
 }
 
-function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
-}
-
-const STATUS_META: Record<string, { label: string; class: string }> = {
-  pending: { label: "Pending", class: "bg-amber-100 text-amber-700" },
-  confirmed: { label: "Confirmed", class: "bg-teal-100 text-teal-700" },
-  cancelled: { label: "Cancelled", class: "bg-red-100 text-red-700" },
+const STATUS_META: Record<string, { label: string; dot: string; text: string }> = {
+  pending:   { label: "Pending",   dot: "bg-amber-400", text: "text-amber-700" },
+  confirmed: { label: "Confirmed", dot: "bg-rose-500",  text: "text-rose-600"  },
+  completed: { label: "Completed", dot: "bg-blue-500",  text: "text-blue-700"  },
+  cancelled: { label: "Cancelled", dot: "bg-red-400",   text: "text-red-700"   },
 }
 
 export default function AdminDashboard() {
-  const bookings = getAllBookings()
+  const bookings    = getAllBookings()
   const consultants = getConsultantMetas()
-  const userCount = getUserCount()
+  const userCount   = getUserCount()
+
+  const todayStr = format(new Date(), "yyyy-MM-dd")
+  const todayBookings = bookings
+    .filter((b) => b.date === todayStr && b.status !== "cancelled")
+    .sort((a, b) => a.timeSlot.localeCompare(b.timeSlot))
 
   const revenue = bookings
-    .filter((b) => b.status === "confirmed")
+    .filter((b) => b.status === "confirmed" || b.status === "completed")
     .reduce((sum, b) => sum + b.hourlyRate, 0)
 
-  const confirmed = bookings.filter((b) => b.status === "confirmed").length
-  const pending = bookings.filter((b) => b.status === "pending").length
-  const cancelled = bookings.filter((b) => b.status === "cancelled").length
-
-  const recent = [...bookings]
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-    .slice(0, 8)
-
   const stats = [
-    { title: "Total Users", value: userCount, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
-    { title: "Consultants", value: consultants.length, icon: UserSquare2, color: "text-teal-600", bg: "bg-teal-50" },
-    { title: "Total Bookings", value: bookings.length, icon: BookOpen, color: "text-purple-600", bg: "bg-purple-50" },
-    { title: "Revenue", value: formatCurrency(revenue), icon: DollarSign, color: "text-emerald-600", bg: "bg-emerald-50" },
+    { label: "Users",       value: userCount,              icon: Users,       color: "text-blue-600",    bg: "bg-blue-50"    },
+    { label: "Consultants", value: consultants.length,     icon: UserSquare2, color: "text-rose-500",    bg: "bg-rose-50"    },
+    { label: "Bookings",    value: bookings.length,        icon: BookOpen,    color: "text-purple-600",  bg: "bg-purple-50"  },
+    { label: "Revenue",     value: formatCurrency(revenue),icon: DollarSign,  color: "text-orange-500", bg: "bg-orange-50" },
   ]
 
   return (
-    <div className="p-8">
+    <div className="p-8 max-w-5xl">
+      {/* Header */}
       <div className="mb-8">
+        <p className="text-sm text-gray-400 font-medium mb-1">
+          {format(new Date(), "EEEE, MMMM d, yyyy")}
+        </p>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-500 mt-1">Overview of your platform activity</p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        {stats.map(({ title, value, icon: Icon, color, bg }) => (
-          <Card key={title} className="border-0 shadow-sm">
-            <CardContent className="p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-sm text-gray-500 font-medium">{title}</p>
-                  <p className="text-2xl font-bold text-gray-900 mt-1">{value}</p>
-                </div>
-                <div className={`${bg} p-3 rounded-xl`}>
-                  <Icon className={`h-5 w-5 ${color}`} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+      {/* Stats strip */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        {stats.map(({ label, value, icon: Icon, color, bg }) => (
+          <div key={label} className="bg-white rounded-xl border border-gray-100 shadow-sm p-4 flex items-center gap-3">
+            <div className={`${bg} p-2.5 rounded-lg flex-shrink-0`}>
+              <Icon className={`h-4 w-4 ${color}`} />
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">{label}</p>
+              <p className="text-lg font-bold text-gray-900 leading-tight">{value}</p>
+            </div>
+          </div>
         ))}
       </div>
 
-      {/* Booking status summary */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-5 mb-8">
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="bg-teal-50 p-3 rounded-xl"><TrendingUp className="h-5 w-5 text-teal-600" /></div>
-            <div>
-              <p className="text-sm text-gray-500">Confirmed</p>
-              <p className="text-xl font-bold text-gray-900">{confirmed}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="bg-amber-50 p-3 rounded-xl"><Clock className="h-5 w-5 text-amber-600" /></div>
-            <div>
-              <p className="text-sm text-gray-500">Pending</p>
-              <p className="text-xl font-bold text-gray-900">{pending}</p>
-            </div>
-          </CardContent>
-        </Card>
-        <Card className="border-0 shadow-sm">
-          <CardContent className="p-5 flex items-center gap-4">
-            <div className="bg-red-50 p-3 rounded-xl"><XCircle className="h-5 w-5 text-red-500" /></div>
-            <div>
-              <p className="text-sm text-gray-500">Cancelled</p>
-              <p className="text-xl font-bold text-gray-900">{cancelled}</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      {/* Today's schedule */}
+      <div>
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-base font-semibold text-gray-900">
+            Today&apos;s Schedule
+            {todayBookings.length > 0 && (
+              <span className="ml-2 text-sm font-normal text-gray-400">
+                {todayBookings.length} booking{todayBookings.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </h2>
+          <Link href="/admin/bookings" className="text-sm text-rose-500 hover:text-rose-600 font-medium">
+            All bookings →
+          </Link>
+        </div>
 
-      {/* Recent bookings table */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-base font-semibold text-gray-900">Recent Bookings</CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          {recent.length === 0 ? (
-            <p className="text-sm text-gray-400 px-6 py-10 text-center">No bookings yet.</p>
-          ) : (
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-gray-100">
-                    {["Consultant", "Date", "Time", "Session", "Rate", "Status"].map((h) => (
-                      <th key={h} className="text-left px-6 py-3 text-xs font-semibold text-gray-500 uppercase tracking-wide">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {recent.map((b, i) => {
-                    const s = STATUS_META[b.status] ?? { label: b.status, class: "bg-gray-100 text-gray-600" }
-                    return (
-                      <tr key={b.id} className={i % 2 === 0 ? "bg-white" : "bg-gray-50/50"}>
-                        <td className="px-6 py-3 font-medium text-gray-900">{b.consultantName}</td>
-                        <td className="px-6 py-3 text-gray-600">{formatDate(b.date)}</td>
-                        <td className="px-6 py-3 text-gray-600">{b.timeSlot}</td>
-                        <td className="px-6 py-3 text-gray-500 capitalize">{b.sessionType?.replace("_", " ")}</td>
-                        <td className="px-6 py-3 text-gray-700">${b.hourlyRate}/hr</td>
-                        <td className="px-6 py-3">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${s.class}`}>
-                            {s.label}
-                          </span>
-                        </td>
-                      </tr>
-                    )
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {todayBookings.length === 0 ? (
+          <div className="bg-white rounded-xl border border-gray-100 shadow-sm px-6 py-14 text-center">
+            <Clock className="h-8 w-8 text-gray-200 mx-auto mb-3" />
+            <p className="text-sm font-medium text-gray-500">No bookings scheduled for today</p>
+            <p className="text-xs text-gray-400 mt-1">New bookings will appear here once confirmed</p>
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {todayBookings.map((b) => {
+              const s = STATUS_META[b.status] ?? { label: b.status, dot: "bg-gray-400", text: "text-gray-600" }
+              return (
+                <Link
+                  key={b.id}
+                  href={`/admin/bookings/${b.id}`}
+                  className="flex items-center gap-5 bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 hover:border-rose-200 hover:shadow-md transition-all group"
+                >
+                  {/* Time */}
+                  <div className="w-14 text-center flex-shrink-0">
+                    <p className="text-lg font-bold text-gray-900 leading-none">{b.timeSlot}</p>
+                  </div>
+
+                  <div className="w-px h-10 bg-gray-100 flex-shrink-0" />
+
+                  {/* Consultant + customer */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-gray-900 text-sm truncate">{b.consultantName}</p>
+                    <p className="text-xs text-gray-500 mt-0.5 truncate">
+                      {b.consultantSpecialty}
+                      {"customerName" in b && b.customerName ? ` · ${b.customerName}` : ""}
+                    </p>
+                  </div>
+
+                  {/* Session type */}
+                  <div className="flex-shrink-0">
+                    {b.sessionType === "online" ? (
+                      <span className="inline-flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
+                        <Monitor className="h-3 w-3" /> Online
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 text-xs text-orange-600 bg-orange-50 px-2 py-1 rounded-full">
+                        <MapPin className="h-3 w-3" /> In-Person
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Status */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <span className={`h-2 w-2 rounded-full ${s.dot}`} />
+                    <span className={`text-xs font-medium ${s.text}`}>{s.label}</span>
+                  </div>
+                </Link>
+              )
+            })}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

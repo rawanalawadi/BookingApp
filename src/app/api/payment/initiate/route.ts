@@ -1,13 +1,7 @@
 import { NextResponse } from "next/server"
-import { auth } from "@/auth"
 import { getBookingById } from "@/lib/bookings-server"
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
-
   const { bookingId } = await req.json().catch(() => ({}))
   if (!bookingId) {
     return NextResponse.json({ error: "Missing bookingId" }, { status: 400 })
@@ -27,12 +21,12 @@ export async function POST(req: Request) {
   //   },
   //   body: JSON.stringify({
   //     PaymentMethodId: 2,
-  //     CustomerName: session.user.name ?? "Guest",
+  //     CustomerName: booking.customerName,
   //     NotificationOption: "LNK",
   //     DisplayCurrencyIso: "SAR",
   //     MobileCountryCode: "+966",
-  //     CustomerMobile: "05XXXXXXXX",
-  //     CustomerEmail: session.user.email,
+  //     CustomerMobile: booking.customerPhone,
+  //     CustomerEmail: booking.userEmail ?? "",
   //     InvoiceValue: booking.hourlyRate,
   //     CallBackUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/callback`,
   //     ErrorUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/payment/callback`,

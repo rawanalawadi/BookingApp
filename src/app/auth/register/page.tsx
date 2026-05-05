@@ -41,11 +41,11 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 to-emerald-50 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-orange-50 flex items-center justify-center p-4">
       <Card className="w-full max-w-md shadow-xl border-0">
         <CardHeader className="text-center pb-4">
           <div className="flex justify-center mb-3">
-            <div className="bg-teal-600 p-3 rounded-xl">
+            <div className="bg-rose-500 p-3 rounded-xl">
               <CalendarCheck className="h-7 w-7 text-white" />
             </div>
           </div>
@@ -68,7 +68,7 @@ export default function RegisterPage() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="h-11 border-gray-200 focus-visible:ring-teal-500"
+                className="h-11 border-gray-200 focus-visible:ring-rose-500"
               />
             </div>
             <div className="space-y-2">
@@ -80,7 +80,7 @@ export default function RegisterPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="h-11 border-gray-200 focus-visible:ring-teal-500"
+                className="h-11 border-gray-200 focus-visible:ring-rose-500"
               />
             </div>
             <div className="space-y-2">
@@ -93,13 +93,13 @@ export default function RegisterPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
-                className="h-11 border-gray-200 focus-visible:ring-teal-500"
+                className="h-11 border-gray-200 focus-visible:ring-rose-500"
               />
             </div>
             <Button
               type="submit"
               disabled={loading}
-              className="w-full h-11 bg-teal-600 hover:bg-teal-700 text-white font-semibold"
+              className="w-full h-11 bg-rose-500 hover:bg-rose-600 text-white font-semibold"
             >
               {loading ? (
                 <>
@@ -113,7 +113,7 @@ export default function RegisterPage() {
           </form>
           <p className="text-center text-sm text-gray-500 mt-6">
             Already have an account?{" "}
-            <Link href="/auth/login" className="text-teal-600 font-semibold hover:underline">
+            <Link href="/auth/login" className="text-rose-500 font-semibold hover:underline">
               Sign in
             </Link>
           </p>

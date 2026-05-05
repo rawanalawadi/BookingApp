@@ -5,7 +5,7 @@ import { cn } from "@/lib/utils"
 const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string }> = {
   confirmed: {
     label: "Confirmed",
-    className: "bg-teal-50 text-teal-700 border-teal-200",
+    className: "bg-rose-50 text-rose-600 border-rose-200",
   },
   pending: {
     label: "Pending",
@@ -14,6 +14,10 @@ const STATUS_CONFIG: Record<BookingStatus, { label: string; className: string }>
   cancelled: {
     label: "Cancelled",
     className: "bg-red-50 text-red-600 border-red-200",
+  },
+  completed: {
+    label: "Completed",
+    className: "bg-gray-50 text-gray-500 border-gray-200",
   },
 }
 

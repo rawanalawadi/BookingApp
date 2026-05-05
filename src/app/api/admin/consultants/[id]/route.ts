@@ -31,6 +31,7 @@ export async function PUT(
         : metas[idx].tags,
       offersOnline: body.offersOnline ?? metas[idx].offersOnline,
       offersInPerson: body.offersInPerson ?? metas[idx].offersInPerson,
+      schedule: body.schedule !== undefined ? body.schedule : metas[idx].schedule,
     }
 
     saveConsultantMetas(metas)

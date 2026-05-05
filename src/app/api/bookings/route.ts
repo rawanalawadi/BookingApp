@@ -13,27 +13,25 @@ export async function GET() {
 }
 
 export async function POST(req: Request) {
-  const session = await auth()
-  if (!session?.user?.email) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
-  }
   try {
     const body = await req.json()
     const {
+      customerName, customerPhone,
       consultantId, consultantName, consultantSpecialty, consultantAvatarUrl,
-      date, timeSlot, sessionType, summary, hourlyRate,
+      date, timeSlot, sessionType, notes, hourlyRate,
     } = body
 
-    if (!consultantId || !date || !timeSlot || !sessionType || !summary || !hourlyRate) {
-      return NextResponse.json({ error: "Missing required fields." }, { status: 400 })
+    if (!customerName?.trim() || !customerPhone?.trim()) {
+      return NextResponse.json({ error: "Name and phone number are required." }, { status: 400 })
     }
-    if (summary.trim().length < 20) {
-      return NextResponse.json({ error: "Summary must be at least 20 characters." }, { status: 400 })
+    if (!consultantId || !date || !timeSlot || !sessionType || !hourlyRate) {
+      return NextResponse.json({ error: "Missing required booking fields." }, { status: 400 })
     }
 
-    const booking = {
+    const booking: Booking = {
       id: crypto.randomUUID(),
-      userEmail: session.user.email,
+      customerName: customerName.trim(),
+      customerPhone: customerPhone.trim(),
       consultantId,
       consultantName,
       consultantSpecialty,
@@ -41,13 +39,13 @@ export async function POST(req: Request) {
       date,
       timeSlot,
       sessionType,
-      summary: summary.trim(),
-      status: "pending" as Booking["status"],
+      notes: notes?.trim() || undefined,
+      status: "pending",
       createdAt: new Date().toISOString(),
       hourlyRate,
     }
 
-    addBookingServer(booking as Booking)
+    addBookingServer(booking)
     return NextResponse.json({ booking }, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 })

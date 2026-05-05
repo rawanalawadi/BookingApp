@@ -26,8 +26,11 @@ export default function BookingCalendar({ consultant, selected, onSelect }: Prop
       disabled={isDisabled}
       className="rounded-xl border border-gray-200 p-3 bg-white w-full"
       classNames={{
-        day_selected: "bg-teal-600 text-white hover:bg-teal-700 focus:bg-teal-700",
-        day_today: "border border-teal-300 text-teal-700 font-semibold",
+        root: "w-full",
+        months: "w-full",
+        month: "w-full flex flex-col gap-4",
+        day_selected: "bg-rose-500 text-white hover:bg-rose-600 focus:bg-rose-600",
+        day_today: "border border-rose-300 text-rose-600 font-semibold",
       }}
     />
   )

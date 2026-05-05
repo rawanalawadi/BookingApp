@@ -3,10 +3,14 @@
 import { usePathname } from "next/navigation"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
+import AIChat from "@/components/chat/AIChat"
+
+const HIDE_CHAT_ON = ["/payment", "/booking/confirmation", "/manage", "/auth", "/admin"]
 
 export default function ConditionalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const isAdmin = pathname?.startsWith("/admin")
+  const showChat = !HIDE_CHAT_ON.some((p) => pathname?.startsWith(p))
 
   if (isAdmin) {
     return <>{children}</>
@@ -17,6 +21,7 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       <Navbar />
       <main className="min-h-screen">{children}</main>
       <Footer />
+      {showChat && <AIChat />}
     </>
   )
 }

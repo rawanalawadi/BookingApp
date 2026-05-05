@@ -6,7 +6,7 @@ export default auth((req) => {
   const isLoggedIn = !!session
 
   const isAdminRoute = nextUrl.pathname.startsWith("/admin")
-  const protectedRoutes = ["/my-bookings", "/booking/confirmation", "/payment"]
+  const protectedRoutes = ["/my-bookings"]
   const isProtected = protectedRoutes.some((route) => nextUrl.pathname.startsWith(route))
 
   if (isAdminRoute) {
@@ -31,5 +31,5 @@ export default auth((req) => {
 })
 
 export const config = {
-  matcher: ["/my-bookings/:path*", "/booking/confirmation/:path*", "/payment/:path*", "/admin/:path*"],
+  matcher: ["/my-bookings/:path*", "/admin/:path*"],
 }

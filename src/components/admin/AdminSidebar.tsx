@@ -11,14 +11,16 @@ import {
   UserSquare2,
   LogOut,
   ArrowLeft,
+  CalendarClock,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
 const NAV = [
-  { href: "/admin", label: "Dashboard", icon: LayoutDashboard },
-  { href: "/admin/consultants", label: "Consultants", icon: UserSquare2 },
-  { href: "/admin/bookings", label: "Bookings", icon: BookOpen },
-  { href: "/admin/users", label: "Users", icon: Users },
+  { href: "/admin",             label: "Dashboard",   icon: LayoutDashboard },
+  { href: "/admin/bookings",    label: "Bookings",    icon: BookOpen        },
+  { href: "/admin/slots",       label: "Slot Manager",icon: CalendarClock   },
+  { href: "/admin/consultants", label: "Consultants", icon: UserSquare2     },
+  { href: "/admin/users",       label: "Users",       icon: Users           },
 ]
 
 export default function AdminSidebar() {
@@ -37,7 +39,7 @@ export default function AdminSidebar() {
       {/* Logo */}
       <div className="px-6 py-5 border-b border-gray-800">
         <div className="flex items-center gap-2.5">
-          <div className="bg-teal-500 p-1.5 rounded-lg">
+          <div className="bg-rose-500 p-1.5 rounded-lg">
             <CalendarCheck className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -58,7 +60,7 @@ export default function AdminSidebar() {
               className={cn(
                 "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors",
                 active
-                  ? "bg-teal-600 text-white"
+                  ? "bg-rose-500 text-white"
                   : "text-gray-400 hover:text-white hover:bg-gray-800"
               )}
             >
@@ -80,7 +82,7 @@ export default function AdminSidebar() {
         </Link>
 
         <div className="flex items-center gap-3 px-3 py-2.5 mt-2">
-          <div className="h-8 w-8 rounded-full bg-teal-700 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+          <div className="h-8 w-8 rounded-full bg-rose-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
             {initials}
           </div>
           <div className="flex-1 min-w-0">

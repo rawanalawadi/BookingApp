@@ -61,7 +61,7 @@ export default function MockPaymentPage() {
 
         {/* Header */}
         <div className="text-center mb-6">
-          <div className="inline-flex items-center gap-2 bg-teal-50 text-teal-700 px-4 py-2 rounded-full text-sm font-medium mb-4">
+          <div className="inline-flex items-center gap-2 bg-rose-50 text-rose-600 px-4 py-2 rounded-full text-sm font-medium mb-4">
             <Lock className="h-3.5 w-3.5" />
             Secure Payment — MyFatoorah (Test Mode)
           </div>
@@ -80,7 +80,7 @@ export default function MockPaymentPage() {
             </div>
           ) : booking ? (
             <>
-              <div className="bg-gradient-to-r from-teal-600 to-emerald-600 px-5 py-4 flex items-center gap-3">
+              <div className="bg-gradient-to-r from-rose-500 to-orange-500 px-5 py-4 flex items-center gap-3">
                 <div className="relative h-10 w-10 rounded-full overflow-hidden ring-2 ring-white/40 shrink-0">
                   <Image
                     src={booking.consultantAvatarUrl}
@@ -91,11 +91,11 @@ export default function MockPaymentPage() {
                 </div>
                 <div>
                   <p className="text-white font-semibold text-sm">{booking.consultantName}</p>
-                  <p className="text-teal-100 text-xs">{booking.consultantSpecialty}</p>
+                  <p className="text-rose-100 text-xs">{booking.consultantSpecialty}</p>
                 </div>
                 <div className="ml-auto text-right">
                   <p className="text-white font-bold text-lg">{formatCurrency(booking.hourlyRate)}</p>
-                  <p className="text-teal-100 text-xs">per hour</p>
+                  <p className="text-rose-100 text-xs">per hour</p>
                 </div>
               </div>
 
@@ -118,7 +118,7 @@ export default function MockPaymentPage() {
                 </div>
                 <div className="flex justify-between border-t border-gray-100 pt-2 mt-2">
                   <span className="text-gray-500 font-medium">Total Due</span>
-                  <span className="font-bold text-teal-700 text-base">{formatCurrency(booking.hourlyRate)}</span>
+                  <span className="font-bold text-rose-600 text-base">{formatCurrency(booking.hourlyRate)}</span>
                 </div>
               </div>
             </>
@@ -174,7 +174,7 @@ export default function MockPaymentPage() {
           <Button
             onClick={handlePay}
             disabled={paying || loading || !booking}
-            className="w-full h-12 bg-teal-600 hover:bg-teal-700 text-white font-semibold text-base shadow-md"
+            className="w-full h-12 bg-rose-500 hover:bg-rose-600 text-white font-semibold text-base shadow-md"
           >
             {paying ? (
               <>

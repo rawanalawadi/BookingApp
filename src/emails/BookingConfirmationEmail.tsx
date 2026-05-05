@@ -58,6 +58,18 @@ export default function BookingConfirmationEmail({ booking }: Props) {
             </Text>
 
             <Row style={{ marginBottom: "12px" }}>
+              <Text style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>Name</Text>
+              <Text style={{ fontSize: "15px", fontWeight: "600", color: "#111827", margin: "2px 0 0" }}>
+                {booking.customerName}
+              </Text>
+            </Row>
+            <Row style={{ marginBottom: "12px" }}>
+              <Text style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>Phone</Text>
+              <Text style={{ fontSize: "15px", fontWeight: "600", color: "#111827", margin: "2px 0 0" }}>
+                {booking.customerPhone}
+              </Text>
+            </Row>
+            <Row style={{ marginBottom: "12px" }}>
               <Text style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>Consultant</Text>
               <Text style={{ fontSize: "15px", fontWeight: "600", color: "#111827", margin: "2px 0 0" }}>
                 {booking.consultantName}
@@ -90,19 +102,21 @@ export default function BookingConfirmationEmail({ booking }: Props) {
 
             <Hr style={{ borderColor: "#e5e7eb", margin: "20px 0" }} />
 
-            <Row>
-              <Text style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>Your Brief</Text>
-              <Text style={{ fontSize: "14px", color: "#374151", margin: "4px 0 0", lineHeight: "1.6" }}>
-                {booking.summary}
-              </Text>
-            </Row>
+            {booking.notes && (
+              <Row>
+                <Text style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>Your Notes</Text>
+                <Text style={{ fontSize: "14px", color: "#374151", margin: "4px 0 0", lineHeight: "1.6" }}>
+                  {booking.notes}
+                </Text>
+              </Row>
+            )}
 
             <Hr style={{ borderColor: "#e5e7eb", margin: "20px 0" }} />
 
             <Row>
               <Text style={{ fontSize: "13px", color: "#6b7280", margin: 0 }}>Session Rate</Text>
               <Text style={{ fontSize: "16px", fontWeight: "700", color: "#0d9488", margin: "2px 0 0" }}>
-                {booking.hourlyRate.toLocaleString("en-SA", { style: "currency", currency: "SAR" })}/hr
+                {booking.hourlyRate.toLocaleString("en-KW", { style: "currency", currency: "KWD" })}/hr
               </Text>
             </Row>
 

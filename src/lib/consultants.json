@@ -10,7 +10,11 @@
     "reviewCount": 247,
     "tags": ["Leadership", "Tech Careers", "Resume", "Interview Prep"],
     "offersOnline": true,
-    "offersInPerson": true
+    "offersInPerson": true,
+    "schedule": {
+      "workingDays": [1, 2, 3, 4, 5],
+      "timeSlots": ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+    }
   },
   {
     "id": "marcus-webb",
@@ -23,7 +27,11 @@
     "reviewCount": 183,
     "tags": ["Investments", "Retirement", "Budgeting", "Tax Planning"],
     "offersOnline": true,
-    "offersInPerson": false
+    "offersInPerson": false,
+    "schedule": {
+      "workingDays": [1, 2, 3, 4, 5],
+      "timeSlots": ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+    }
   },
   {
     "id": "aisha-okafor",
@@ -36,7 +44,11 @@
     "reviewCount": 312,
     "tags": ["Anxiety", "Work-Life Balance", "Mindfulness", "Burnout"],
     "offersOnline": true,
-    "offersInPerson": true
+    "offersInPerson": true,
+    "schedule": {
+      "workingDays": [1, 2, 3, 4, 5],
+      "timeSlots": ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+    }
   },
   {
     "id": "james-thornton",
@@ -49,7 +61,11 @@
     "reviewCount": 98,
     "tags": ["Contracts", "Startups", "IP", "Fundraising"],
     "offersOnline": true,
-    "offersInPerson": false
+    "offersInPerson": false,
+    "schedule": {
+      "workingDays": [1, 2, 3, 4, 5],
+      "timeSlots": ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+    }
   },
   {
     "id": "priya-nair",
@@ -62,6 +78,10 @@
     "reviewCount": 156,
     "tags": ["Growth", "Marketing", "Go-to-Market", "SaaS"],
     "offersOnline": true,
-    "offersInPerson": true
+    "offersInPerson": true,
+    "schedule": {
+      "workingDays": [1, 2, 3, 4, 5],
+      "timeSlots": ["09:00", "10:00", "11:00", "13:00", "14:00", "15:00", "16:00", "17:00"]
+    }
   }
 ]
