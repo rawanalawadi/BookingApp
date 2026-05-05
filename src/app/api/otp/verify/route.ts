@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Phone and code are required" }, { status: 400 })
   }
 
-  const result = verifyOTP(phone.trim(), code.trim())
+  const result = await verifyOTP(phone.trim(), code.trim())
 
   if (result === "valid") {
     return Response.json({ valid: true })

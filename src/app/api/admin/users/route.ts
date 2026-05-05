@@ -1,7 +1,8 @@
+export const dynamic = "force-dynamic"
+
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
-import { readFileSync } from "fs"
-import path from "path"
+import { createServerClient } from "@/lib/supabase"
 
 export async function GET() {
   const session = await auth()
@@ -9,12 +10,12 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  try {
-    const raw = readFileSync(path.join(process.cwd(), "src/lib/users.json"), "utf-8")
-    const users = JSON.parse(raw)
-    const safe = users.map(({ id, name, email }: { id: string; name: string; email: string }) => ({ id, name, email }))
-    return NextResponse.json(safe)
-  } catch {
-    return NextResponse.json([])
-  }
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("app_users")
+    .select("email, name")
+    .order("created_at", { ascending: false })
+
+  if (error) return NextResponse.json([], { status: 200 })
+  return NextResponse.json(data ?? [])
 }

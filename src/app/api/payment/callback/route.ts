@@ -12,12 +12,12 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: "Missing bookingId" }, { status: 400 })
   }
 
-  const existing = getBookingById(bookingId)
+  const existing = await getBookingById(bookingId)
   if (!existing) {
     return NextResponse.json({ error: "Booking not found" }, { status: 404 })
   }
 
-  const confirmed = updateBookingStatus(bookingId, "confirmed", paymentReference)
+  const confirmed = await updateBookingStatus(bookingId, "confirmed", paymentReference)
   if (!confirmed) {
     return NextResponse.json({ error: "Failed to confirm booking" }, { status: 500 })
   }

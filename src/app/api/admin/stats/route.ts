@@ -1,17 +1,17 @@
+export const dynamic = "force-dynamic"
+
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { getAllBookings } from "@/lib/bookings-server"
 import { getConsultantMetas } from "@/lib/consultants-server"
-import { readFileSync } from "fs"
-import path from "path"
+import { createServerClient } from "@/lib/supabase"
 
-function getUserCount(): number {
-  try {
-    const raw = readFileSync(path.join(process.cwd(), "src/lib/users.json"), "utf-8")
-    return JSON.parse(raw).length
-  } catch {
-    return 0
-  }
+async function getUserCount(): Promise<number> {
+  const sb = createServerClient()
+  const { count } = await sb
+    .from("app_users")
+    .select("email", { count: "exact", head: true })
+  return count ?? 0
 }
 
 export async function GET() {
@@ -20,9 +20,11 @@ export async function GET() {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  const bookings = getAllBookings()
-  const consultants = getConsultantMetas()
-  const users = getUserCount()
+  const [bookings, consultants, users] = await Promise.all([
+    getAllBookings(),
+    getConsultantMetas(),
+    getUserCount(),
+  ])
 
   const revenue = bookings
     .filter((b) => b.status === "confirmed")

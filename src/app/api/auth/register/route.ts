@@ -1,31 +1,6 @@
 import { NextResponse } from "next/server"
 import bcrypt from "bcryptjs"
-import { readFileSync, writeFileSync } from "fs"
-import path from "path"
-
-interface StoredUser {
-  id: string
-  name: string
-  email: string
-  passwordHash: string
-}
-
-function getUsersFilePath(): string {
-  return path.join(process.cwd(), "src/lib/users.json")
-}
-
-function getUsers(): StoredUser[] {
-  try {
-    const raw = readFileSync(getUsersFilePath(), "utf-8")
-    return JSON.parse(raw)
-  } catch {
-    return []
-  }
-}
-
-function saveUsers(users: StoredUser[]): void {
-  writeFileSync(getUsersFilePath(), JSON.stringify(users, null, 2))
-}
+import { createServerClient } from "@/lib/supabase"
 
 export async function POST(req: Request) {
   try {
@@ -34,27 +9,32 @@ export async function POST(req: Request) {
     if (!name || !email || !password) {
       return NextResponse.json({ error: "All fields are required." }, { status: 400 })
     }
-
     if (password.length < 6) {
       return NextResponse.json({ error: "Password must be at least 6 characters." }, { status: 400 })
     }
 
-    const users = getUsers()
-    if (users.some((u) => u.email === email)) {
+    const sb = createServerClient()
+
+    // Check for existing user
+    const { data: existing } = await sb
+      .from("app_users")
+      .select("email")
+      .eq("email", email)
+      .maybeSingle()
+
+    if (existing) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 })
     }
 
     const passwordHash = await bcrypt.hash(password, 10)
-    const newUser: StoredUser = {
-      id: crypto.randomUUID(),
-      name,
+    const { error } = await sb.from("app_users").insert({
       email,
-      passwordHash,
-    }
+      name,
+      password: passwordHash,
+      is_admin: false,
+    })
 
-    users.push(newUser)
-    saveUsers(users)
-
+    if (error) throw error
     return NextResponse.json({ message: "Account created successfully." }, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Internal server error." }, { status: 500 })

@@ -1,15 +1,28 @@
 "use client"
 
-import { useState } from "react"
-import { CONSULTANTS, SPECIALTIES } from "@/lib/data"
+import { useState, useEffect } from "react"
+import { Consultant } from "@/lib/types"
 import ConsultantCard from "@/components/consultants/ConsultantCard"
 import SpecialtyFilter from "@/components/consultants/SpecialtyFilter"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export default function ConsultantsPage() {
+  const [consultants, setConsultants] = useState<Consultant[]>([])
+  const [loading, setLoading] = useState(true)
   const [selected, setSelected] = useState("All")
 
-  const filtered =
-    selected === "All" ? CONSULTANTS : CONSULTANTS.filter((c) => c.specialty === selected)
+  useEffect(() => {
+    fetch("/api/consultants")
+      .then((r) => r.json())
+      .then((data: Consultant[]) => {
+        setConsultants(data)
+        setLoading(false)
+      })
+      .catch(() => setLoading(false))
+  }, [])
+
+  const specialties = ["All", ...Array.from(new Set(consultants.map((c) => c.specialty))).sort()]
+  const filtered = selected === "All" ? consultants : consultants.filter((c) => c.specialty === selected)
 
   return (
     <div className="bg-gray-50 min-h-screen">
@@ -25,14 +38,20 @@ export default function ConsultantsPage() {
         {/* Filter */}
         <div className="mb-5 md:mb-8">
           <SpecialtyFilter
-            specialties={SPECIALTIES}
+            specialties={specialties}
             selected={selected}
             onSelect={setSelected}
           />
         </div>
 
         {/* Grid */}
-        {filtered.length === 0 ? (
+        {loading ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(6)].map((_, i) => (
+              <Skeleton key={i} className="h-64 rounded-2xl" />
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
           <div className="text-center py-16 text-gray-400">No consultants found for this specialty.</div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">

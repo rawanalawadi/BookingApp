@@ -1,12 +1,17 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
-import { cancelBookingServer, getBookingById, modifyBookingServer, updateBookingStatus } from "@/lib/bookings-server"
+import {
+  cancelBookingServer,
+  getBookingById,
+  modifyBookingServer,
+  updateBookingStatus,
+} from "@/lib/bookings-server"
 
 export async function GET(
   _req: Request,
   { params }: { params: { id: string } }
 ) {
-  const booking = getBookingById(params.id)
+  const booking = await getBookingById(params.id)
   if (!booking) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
@@ -17,7 +22,7 @@ export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
-  const booking = getBookingById(params.id)
+  const booking = await getBookingById(params.id)
   if (!booking) {
     return NextResponse.json({ error: "Not found" }, { status: 404 })
   }
@@ -29,7 +34,7 @@ export async function PATCH(
     if (booking.customerPhone !== body.phone) {
       return NextResponse.json({ error: "Phone number does not match this booking" }, { status: 403 })
     }
-    cancelBookingServer(params.id)
+    await cancelBookingServer(params.id)
     return NextResponse.json({ ok: true })
   }
 
@@ -42,7 +47,7 @@ export async function PATCH(
     if (!date || !timeSlot || !sessionType) {
       return NextResponse.json({ error: "date, timeSlot and sessionType are required" }, { status: 400 })
     }
-    const updated = modifyBookingServer(params.id, { date, timeSlot, sessionType, notes })
+    const updated = await modifyBookingServer(params.id, { date, timeSlot, sessionType, notes })
     return NextResponse.json({ ok: true, booking: updated })
   }
 
@@ -53,12 +58,12 @@ export async function PATCH(
   }
 
   if (body.action === "cancel") {
-    cancelBookingServer(params.id)
+    await cancelBookingServer(params.id)
     return NextResponse.json({ ok: true })
   }
 
   if (body.status && session.user.isAdmin) {
-    const updated = updateBookingStatus(params.id, body.status, body.paymentReference)
+    const updated = await updateBookingStatus(params.id, body.status, body.paymentReference)
     return NextResponse.json(updated)
   }
 

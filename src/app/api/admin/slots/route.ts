@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { getSlotsForDate, toggleSlot } from "@/lib/consultants-server"
@@ -11,7 +13,7 @@ export async function GET(req: Request) {
   const date = searchParams.get("date")
   if (!consultantId || !date) return NextResponse.json({ error: "Missing params" }, { status: 400 })
 
-  const slots = getSlotsForDate(consultantId, date)
+  const slots = await getSlotsForDate(consultantId, date)
   if (slots === null) return NextResponse.json({ error: "Not found" }, { status: 404 })
   return NextResponse.json(slots)
 }
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
   try {
     const { consultantId, date, time } = await req.json()
     if (!consultantId || !date || !time) return NextResponse.json({ error: "Missing fields" }, { status: 400 })
-    const result = toggleSlot(consultantId, date, time)
+    const result = await toggleSlot(consultantId, date, time)
     if (!result) return NextResponse.json({ error: "Not found" }, { status: 404 })
     return NextResponse.json(result)
   } catch {

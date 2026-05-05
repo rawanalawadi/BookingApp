@@ -1,5 +1,7 @@
+export const dynamic = "force-dynamic"
+
 import { NextResponse } from "next/server"
-import { getAllBookings } from "@/lib/bookings-server"
+import { createServerClient } from "@/lib/supabase"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
@@ -10,18 +12,17 @@ export async function GET(req: Request) {
   }
 
   const today = new Date().toISOString().slice(0, 10)
+  const sb = createServerClient()
 
-  const bookings = getAllBookings().filter(
-    (b) =>
-      b.customerPhone === phone &&
-      b.status !== "cancelled" &&
-      b.date >= today
-  )
+  const { data, error } = await sb
+    .from("bookings")
+    .select("*")
+    .eq("customer_phone", phone)
+    .neq("status", "cancelled")
+    .gte("date", today)
+    .order("date", { ascending: true })
+    .order("time_slot", { ascending: true })
 
-  // Sort ascending by date then time
-  bookings.sort((a, b) =>
-    a.date !== b.date ? a.date.localeCompare(b.date) : a.timeSlot.localeCompare(b.timeSlot)
-  )
-
-  return NextResponse.json(bookings)
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 })
+  return NextResponse.json(data ?? [])
 }

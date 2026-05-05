@@ -3,7 +3,6 @@ import { notFound } from "next/navigation"
 import { Star, Clock, Tag } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
-import { getConsultantById } from "@/lib/data"
 import { getConsultantWithSchedule } from "@/lib/consultants-server"
 import { formatCurrency } from "@/lib/utils"
 import BookingPanel from "@/components/booking/BookingPanel"
@@ -12,8 +11,8 @@ interface Props {
   params: { id: string }
 }
 
-export default function ConsultantDetailPage({ params }: Props) {
-  const consultant = getConsultantWithSchedule(params.id) ?? getConsultantById(params.id)
+export default async function ConsultantDetailPage({ params }: Props) {
+  const consultant = await getConsultantWithSchedule(params.id)
   if (!consultant) notFound()
 
   return (

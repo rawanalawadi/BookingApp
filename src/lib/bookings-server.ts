@@ -1,72 +1,166 @@
-import { readFileSync, writeFileSync } from "fs"
-import path from "path"
+import { createServerClient } from "./supabase"
 import { Booking } from "./types"
 
-function getFilePath(): string {
-  return path.join(process.cwd(), "src/lib/bookings.json")
-}
+// ── helpers ──────────────────────────────────────────────────────────────────
 
-export function getAllBookings(): Booking[] {
-  try {
-    const raw = readFileSync(getFilePath(), "utf-8")
-    return JSON.parse(raw)
-  } catch {
-    return []
+function rowToBooking(row: Record<string, unknown>): Booking {
+  return {
+    id:                    row.id as string,
+    userEmail:             row.user_email as string | undefined,
+    customerName:          row.customer_name as string,
+    customerPhone:         row.customer_phone as string,
+    consultantId:          row.consultant_id as string,
+    consultantName:        row.consultant_name as string,
+    consultantSpecialty:   row.consultant_specialty as string,
+    consultantAvatarUrl:   row.consultant_avatar_url as string,
+    date:                  row.date as string,
+    timeSlot:              row.time_slot as string,
+    sessionType:           row.session_type as Booking["sessionType"],
+    notes:                 row.notes as string | undefined,
+    status:                row.status as Booking["status"],
+    hourlyRate:            Number(row.hourly_rate),
+    paymentReference:      row.payment_reference as string | undefined,
+    createdAt:             row.created_at as string,
   }
 }
 
-export function getBookingsByUser(email: string): Booking[] {
-  return getAllBookings().filter((b) => b.userEmail === email)
+// ── public API ───────────────────────────────────────────────────────────────
+
+export async function getAllBookings(): Promise<Booking[]> {
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("bookings")
+    .select("*")
+    .order("created_at", { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(rowToBooking)
 }
 
-export function saveAllBookings(bookings: Booking[]): void {
-  writeFileSync(getFilePath(), JSON.stringify(bookings, null, 2))
+export async function getBookingsByUser(email: string): Promise<Booking[]> {
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("bookings")
+    .select("*")
+    .eq("user_email", email)
+    .order("created_at", { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(rowToBooking)
 }
 
-export function addBookingServer(booking: Booking): void {
-  const bookings = getAllBookings()
-  bookings.push(booking)
-  saveAllBookings(bookings)
+export async function getBookingsByPhone(phone: string): Promise<Booking[]> {
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("bookings")
+    .select("*")
+    .eq("customer_phone", phone)
+    .order("created_at", { ascending: false })
+  if (error) throw error
+  return (data ?? []).map(rowToBooking)
 }
 
-export function getBookingById(id: string): Booking | undefined {
-  return getAllBookings().find((b) => b.id === id)
+export async function getBookingById(id: string): Promise<Booking | null> {
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("bookings")
+    .select("*")
+    .eq("id", id)
+    .single()
+  if (error || !data) return null
+  return rowToBooking(data)
 }
 
-export function updateBookingStatus(
+export async function addBookingServer(booking: Booking): Promise<Booking> {
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("bookings")
+    .insert({
+      id:                    booking.id,
+      user_email:            booking.userEmail ?? null,
+      customer_name:         booking.customerName,
+      customer_phone:        booking.customerPhone,
+      consultant_id:         booking.consultantId,
+      consultant_name:       booking.consultantName,
+      consultant_specialty:  booking.consultantSpecialty,
+      consultant_avatar_url: booking.consultantAvatarUrl,
+      date:                  booking.date,
+      time_slot:             booking.timeSlot,
+      session_type:          booking.sessionType,
+      notes:                 booking.notes ?? null,
+      status:                booking.status,
+      hourly_rate:           booking.hourlyRate,
+      payment_reference:     booking.paymentReference ?? null,
+    })
+    .select()
+    .single()
+  if (error) throw error
+  return rowToBooking(data)
+}
+
+export async function cancelBookingServer(id: string): Promise<boolean> {
+  const sb = createServerClient()
+  const { error } = await sb
+    .from("bookings")
+    .update({ status: "cancelled" })
+    .eq("id", id)
+  return !error
+}
+
+export async function updateBookingStatus(
   id: string,
   status: Booking["status"],
   paymentReference?: string
-): Booking | null {
-  const bookings = getAllBookings()
-  const idx = bookings.findIndex((b) => b.id === id)
-  if (idx === -1) return null
-  bookings[idx] = {
-    ...bookings[idx],
-    status,
-    ...(paymentReference ? { paymentReference } : {}),
-  }
-  saveAllBookings(bookings)
-  return bookings[idx]
+): Promise<Booking | null> {
+  const sb = createServerClient()
+  const patch: Record<string, unknown> = { status }
+  if (paymentReference) patch.payment_reference = paymentReference
+  const { data, error } = await sb
+    .from("bookings")
+    .update(patch)
+    .eq("id", id)
+    .select()
+    .single()
+  if (error || !data) return null
+  return rowToBooking(data)
 }
 
-export function modifyBookingServer(
+export async function modifyBookingServer(
   id: string,
   fields: Pick<Booking, "date" | "timeSlot" | "sessionType"> & { notes?: string }
-): Booking | null {
-  const bookings = getAllBookings()
-  const idx = bookings.findIndex((b) => b.id === id)
-  if (idx === -1) return null
-  bookings[idx] = { ...bookings[idx], ...fields }
-  saveAllBookings(bookings)
-  return bookings[idx]
+): Promise<Booking | null> {
+  const sb = createServerClient()
+  const { data, error } = await sb
+    .from("bookings")
+    .update({
+      date:         fields.date,
+      time_slot:    fields.timeSlot,
+      session_type: fields.sessionType,
+      notes:        fields.notes ?? null,
+    })
+    .eq("id", id)
+    .select()
+    .single()
+  if (error || !data) return null
+  return rowToBooking(data)
 }
 
-export function cancelBookingServer(id: string): boolean {
-  const bookings = getAllBookings()
-  const idx = bookings.findIndex((b) => b.id === id)
-  if (idx === -1) return false
-  bookings[idx] = { ...bookings[idx], status: "cancelled" }
-  saveAllBookings(bookings)
-  return true
+export async function isSlotBooked(
+  consultantId: string,
+  date: string,
+  timeSlot: string
+): Promise<boolean> {
+  const sb = createServerClient()
+  const { count } = await sb
+    .from("bookings")
+    .select("id", { count: "exact", head: true })
+    .eq("consultant_id", consultantId)
+    .eq("date", date)
+    .eq("time_slot", timeSlot)
+    .in("status", ["confirmed", "pending"])
+  return (count ?? 0) > 0
+}
+
+// Legacy sync aliases kept for backward compat — wrap in async context
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function saveAllBookings(_bookings: Booking[]): void {
+  // no-op — Supabase is source of truth
 }

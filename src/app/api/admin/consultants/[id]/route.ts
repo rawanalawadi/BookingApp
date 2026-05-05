@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
-import { getConsultantMetas, saveConsultantMetas } from "@/lib/consultants-server"
+import { getConsultantMetaById, saveConsultantMeta, deleteConsultantMeta } from "@/lib/consultants-server"
 
 export async function PUT(
   req: Request,
@@ -13,29 +13,28 @@ export async function PUT(
 
   try {
     const body = await req.json()
-    const metas = getConsultantMetas()
-    const idx = metas.findIndex((m) => m.id === params.id)
-    if (idx === -1) return NextResponse.json({ error: "Not found" }, { status: 404 })
+    const existing = await getConsultantMetaById(params.id)
+    if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
 
-    metas[idx] = {
-      ...metas[idx],
-      name: body.name ?? metas[idx].name,
-      specialty: body.specialty ?? metas[idx].specialty,
-      bio: body.bio ?? metas[idx].bio,
-      avatarUrl: body.avatarUrl ?? metas[idx].avatarUrl,
-      hourlyRate: body.hourlyRate != null ? Number(body.hourlyRate) : metas[idx].hourlyRate,
-      rating: body.rating != null ? Number(body.rating) : metas[idx].rating,
-      reviewCount: body.reviewCount != null ? Number(body.reviewCount) : metas[idx].reviewCount,
-      tags: body.tags != null
+    const updated = {
+      ...existing,
+      name:           body.name            ?? existing.name,
+      specialty:      body.specialty       ?? existing.specialty,
+      bio:            body.bio             ?? existing.bio,
+      avatarUrl:      body.avatarUrl       ?? existing.avatarUrl,
+      hourlyRate:     body.hourlyRate != null ? Number(body.hourlyRate) : existing.hourlyRate,
+      rating:         body.rating     != null ? Number(body.rating)     : existing.rating,
+      reviewCount:    body.reviewCount != null ? Number(body.reviewCount) : existing.reviewCount,
+      tags:           body.tags != null
         ? (Array.isArray(body.tags) ? body.tags : String(body.tags).split(",").map((t: string) => t.trim()).filter(Boolean))
-        : metas[idx].tags,
-      offersOnline: body.offersOnline ?? metas[idx].offersOnline,
-      offersInPerson: body.offersInPerson ?? metas[idx].offersInPerson,
-      schedule: body.schedule !== undefined ? body.schedule : metas[idx].schedule,
+        : existing.tags,
+      offersOnline:   body.offersOnline   ?? existing.offersOnline,
+      offersInPerson: body.offersInPerson ?? existing.offersInPerson,
+      schedule:       body.schedule !== undefined ? body.schedule : existing.schedule,
     }
 
-    saveConsultantMetas(metas)
-    return NextResponse.json(metas[idx])
+    await saveConsultantMeta(updated)
+    return NextResponse.json(updated)
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 })
   }
@@ -50,11 +49,9 @@ export async function DELETE(
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
-  const metas = getConsultantMetas()
-  const filtered = metas.filter((m) => m.id !== params.id)
-  if (filtered.length === metas.length) {
-    return NextResponse.json({ error: "Not found" }, { status: 404 })
-  }
-  saveConsultantMetas(filtered)
+  const existing = await getConsultantMetaById(params.id)
+  if (!existing) return NextResponse.json({ error: "Not found" }, { status: 404 })
+
+  await deleteConsultantMeta(params.id)
   return NextResponse.json({ ok: true })
 }

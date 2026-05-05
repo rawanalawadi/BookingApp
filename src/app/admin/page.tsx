@@ -1,16 +1,18 @@
+export const dynamic = "force-dynamic"
+
 import { getAllBookings } from "@/lib/bookings-server"
 import { getConsultantMetas } from "@/lib/consultants-server"
-import { readFileSync } from "fs"
-import path from "path"
+import { createServerClient } from "@/lib/supabase"
 import { format } from "date-fns"
 import Link from "next/link"
 import { Users, UserSquare2, BookOpen, DollarSign, Monitor, MapPin, Clock } from "lucide-react"
 
-function getUserCount(): number {
-  try {
-    const raw = readFileSync(path.join(process.cwd(), "src/lib/users.json"), "utf-8")
-    return JSON.parse(raw).length
-  } catch { return 0 }
+async function getUserCount(): Promise<number> {
+  const sb = createServerClient()
+  const { count } = await sb
+    .from("app_users")
+    .select("email", { count: "exact", head: true })
+  return count ?? 0
 }
 
 function formatCurrency(n: number) {
@@ -24,10 +26,12 @@ const STATUS_META: Record<string, { label: string; dot: string; text: string }> 
   cancelled: { label: "Cancelled", dot: "bg-red-400",   text: "text-red-700"   },
 }
 
-export default function AdminDashboard() {
-  const bookings    = getAllBookings()
-  const consultants = getConsultantMetas()
-  const userCount   = getUserCount()
+export default async function AdminDashboard() {
+  const [bookings, consultants, userCount] = await Promise.all([
+    getAllBookings(),
+    getConsultantMetas(),
+    getUserCount(),
+  ])
 
   const todayStr = format(new Date(), "yyyy-MM-dd")
   const todayBookings = bookings
@@ -39,9 +43,9 @@ export default function AdminDashboard() {
     .reduce((sum, b) => sum + b.hourlyRate, 0)
 
   const stats = [
-    { label: "Users",       value: userCount,              icon: Users,       color: "text-blue-600",    bg: "bg-blue-50"    },
-    { label: "Consultants", value: consultants.length,     icon: UserSquare2, color: "text-rose-500",    bg: "bg-rose-50"    },
-    { label: "Bookings",    value: bookings.length,        icon: BookOpen,    color: "text-purple-600",  bg: "bg-purple-50"  },
+    { label: "Users",       value: userCount,              icon: Users,       color: "text-blue-600",   bg: "bg-blue-50"   },
+    { label: "Consultants", value: consultants.length,     icon: UserSquare2, color: "text-rose-500",   bg: "bg-rose-50"   },
+    { label: "Bookings",    value: bookings.length,        icon: BookOpen,    color: "text-purple-600", bg: "bg-purple-50" },
     { label: "Revenue",     value: formatCurrency(revenue),icon: DollarSign,  color: "text-orange-500", bg: "bg-orange-50" },
   ]
 
@@ -102,14 +106,12 @@ export default function AdminDashboard() {
                   href={`/admin/bookings/${b.id}`}
                   className="flex items-center gap-5 bg-white rounded-xl border border-gray-100 shadow-sm px-5 py-4 hover:border-rose-200 hover:shadow-md transition-all group"
                 >
-                  {/* Time */}
                   <div className="w-14 text-center flex-shrink-0">
                     <p className="text-lg font-bold text-gray-900 leading-none">{b.timeSlot}</p>
                   </div>
 
                   <div className="w-px h-10 bg-gray-100 flex-shrink-0" />
 
-                  {/* Consultant + customer */}
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-gray-900 text-sm truncate">{b.consultantName}</p>
                     <p className="text-xs text-gray-500 mt-0.5 truncate">
@@ -118,7 +120,6 @@ export default function AdminDashboard() {
                     </p>
                   </div>
 
-                  {/* Session type */}
                   <div className="flex-shrink-0">
                     {b.sessionType === "online" ? (
                       <span className="inline-flex items-center gap-1 text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded-full">
@@ -131,7 +132,6 @@ export default function AdminDashboard() {
                     )}
                   </div>
 
-                  {/* Status */}
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     <span className={`h-2 w-2 rounded-full ${s.dot}`} />
                     <span className={`text-xs font-medium ${s.text}`}>{s.label}</span>

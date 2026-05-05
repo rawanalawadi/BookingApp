@@ -1,3 +1,5 @@
+export const dynamic = "force-dynamic"
+
 import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { addBookingServer, getBookingsByUser } from "@/lib/bookings-server"
@@ -8,7 +10,7 @@ export async function GET() {
   if (!session?.user?.email) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
-  const bookings = getBookingsByUser(session.user.email)
+  const bookings = await getBookingsByUser(session.user.email)
   return NextResponse.json(bookings)
 }
 
@@ -28,10 +30,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Missing required booking fields." }, { status: 400 })
     }
 
+    const session = await auth()
+
     const booking: Booking = {
-      id: crypto.randomUUID(),
-      customerName: customerName.trim(),
-      customerPhone: customerPhone.trim(),
+      id:                    crypto.randomUUID(),
+      userEmail:             session?.user?.email ?? undefined,
+      customerName:          customerName.trim(),
+      customerPhone:         customerPhone.trim(),
       consultantId,
       consultantName,
       consultantSpecialty,
@@ -39,14 +44,14 @@ export async function POST(req: Request) {
       date,
       timeSlot,
       sessionType,
-      notes: notes?.trim() || undefined,
-      status: "pending",
-      createdAt: new Date().toISOString(),
+      notes:                 notes?.trim() || undefined,
+      status:                "pending",
+      createdAt:             new Date().toISOString(),
       hourlyRate,
     }
 
-    addBookingServer(booking)
-    return NextResponse.json({ booking }, { status: 201 })
+    const saved = await addBookingServer(booking)
+    return NextResponse.json({ booking: saved }, { status: 201 })
   } catch {
     return NextResponse.json({ error: "Invalid request" }, { status: 400 })
   }
