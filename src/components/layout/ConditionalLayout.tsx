@@ -3,7 +3,7 @@
 import { usePathname } from "next/navigation"
 import Navbar from "./Navbar"
 import Footer from "./Footer"
-import AIChat from "@/components/chat/AIChat"
+import BookingChatWidget from "@/components/chat/BookingChatWidget"
 
 const HIDE_CHAT_ON = ["/payment", "/booking/confirmation", "/manage", "/auth", "/admin"]
 
@@ -21,7 +21,7 @@ export default function ConditionalLayout({ children }: { children: React.ReactN
       <Navbar />
       <main className="min-h-screen">{children}</main>
       <Footer />
-      {showChat && <AIChat />}
+      {showChat && <BookingChatWidget />}
     </>
   )
 }
