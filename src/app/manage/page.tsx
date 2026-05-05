@@ -380,47 +380,71 @@ export default function ManagePage() {
                       </div>
 
                       {!isCancelled && (
-                        <div className="px-5 pb-4">
-                          {!isConfirming ? (
+                        <>
+                          <div className="px-5 pb-4 flex items-center justify-between gap-4">
                             <button
-                              onClick={() => setConfirmCancelId(booking.id)}
-                              className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors"
+                              onClick={() => handleStartEdit(booking)}
+                              className="text-xs text-teal-600 hover:text-teal-800 flex items-center gap-1 transition-colors"
                             >
-                              <XCircle className="h-3.5 w-3.5" />
-                              Cancel this booking
+                              {fetchingConsultant && editingId === booking.id ? (
+                                <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                              ) : (
+                                <Pencil className="h-3.5 w-3.5" />
+                              )}
+                              {editingId === booking.id ? "Close" : "Modify booking"}
                             </button>
-                          ) : (
-                            <div className="bg-red-50 rounded-xl p-3 border border-red-100">
-                              <p className="text-sm font-semibold text-red-700 mb-1 flex items-center gap-1.5">
-                                <AlertTriangle className="h-4 w-4" />
-                                Cancel this session?
-                              </p>
-                              <p className="text-xs text-red-500 mb-3">
-                                This cannot be undone. Your slot will be released.
-                              </p>
-                              <div className="flex gap-2">
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => setConfirmCancelId(null)}
-                                  className="flex-1 text-xs border-gray-200"
-                                >
-                                  Keep it
-                                </Button>
-                                <Button
-                                  size="sm"
-                                  onClick={() => handleCancel(booking.id)}
-                                  disabled={isCancelling}
-                                  className="flex-1 text-xs bg-red-600 hover:bg-red-700 text-white"
-                                >
-                                  {isCancelling ? (
-                                    <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                  ) : "Yes, cancel"}
-                                </Button>
+
+                            {!isConfirming ? (
+                              <button
+                                onClick={() => setConfirmCancelId(booking.id)}
+                                className="text-xs text-red-500 hover:text-red-700 flex items-center gap-1 transition-colors"
+                              >
+                                <XCircle className="h-3.5 w-3.5" />
+                                Cancel
+                              </button>
+                            ) : (
+                              <div className="flex-1 bg-red-50 rounded-xl p-3 border border-red-100">
+                                <p className="text-sm font-semibold text-red-700 mb-1 flex items-center gap-1.5">
+                                  <AlertTriangle className="h-4 w-4" />
+                                  Cancel this session?
+                                </p>
+                                <p className="text-xs text-red-500 mb-3">
+                                  This cannot be undone. Your slot will be released.
+                                </p>
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => setConfirmCancelId(null)}
+                                    className="flex-1 text-xs border-gray-200"
+                                  >
+                                    Keep it
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    onClick={() => handleCancel(booking.id)}
+                                    disabled={isCancelling}
+                                    className="flex-1 text-xs bg-red-600 hover:bg-red-700 text-white"
+                                  >
+                                    {isCancelling ? (
+                                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                    ) : "Yes, cancel"}
+                                  </Button>
+                                </div>
                               </div>
-                            </div>
+                            )}
+                          </div>
+
+                          {editingId === booking.id && editConsultant && (
+                            <ModifyPanel
+                              booking={booking}
+                              consultant={editConsultant}
+                              phone={submittedPhone}
+                              onSave={handleModified}
+                              onCancel={() => { setEditingId(null); setEditConsultant(null) }}
+                            />
                           )}
-                        </div>
+                        </>
                       )}
 
                       {isCancelled && (
