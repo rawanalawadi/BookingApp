@@ -12,6 +12,7 @@ import {
   CalendarCheck, Loader2, Monitor, MapPin, User, Phone,
   ShieldCheck, MessageSquare, RefreshCw, CreditCard,
 } from "lucide-react"
+import PhoneInput, { buildPhone } from "@/components/ui/PhoneInput"
 
 type Phase = "form" | "otp" | "method" | "paying"
 
@@ -39,7 +40,8 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
 
   // form fields
   const [name, setName] = useState("")
-  const [phone, setPhone] = useState("")
+  const [countryCode, setCountryCode] = useState("+965")
+  const [phoneNumber, setPhoneNumber] = useState("")
   const [notes, setNotes] = useState("")
   const [touched, setTouched] = useState({ name: false, phone: false })
 
@@ -57,9 +59,10 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
   const [loadingMethods, setLoadingMethods] = useState(false)
   const [pendingBookingId, setPendingBookingId] = useState<string | null>(null)
 
+  const phone = buildPhone(countryCode, phoneNumber)
   const nameError = touched.name && !name.trim()
-  const phoneError = touched.phone && !phone.trim()
-  const canProceed = name.trim().length > 0 && phone.trim().length > 0
+  const phoneError = touched.phone && phoneNumber.replace(/\D/g, "").length < 7
+  const canProceed = name.trim().length > 0 && phoneNumber.replace(/\D/g, "").length >= 7
 
   async function sendOTP() {
     setTouched({ name: true, phone: true })
@@ -231,18 +234,15 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
               Phone Number <span className="text-red-400">*</span>
             </span>
           </label>
-          <input
-            type="tel"
-            value={phone}
-            onChange={(e) => setPhone(e.target.value)}
-            onBlur={() => setTouched((t) => ({ ...t, phone: true }))}
-            placeholder="e.g. +965 XXXX XXXX"
-            className={cn(
-              "w-full rounded-lg border px-3 py-2.5 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent",
-              phoneError ? "border-red-300 bg-red-50" : "border-gray-200"
-            )}
+          <PhoneInput
+            countryCode={countryCode}
+            number={phoneNumber}
+            onCountryChange={setCountryCode}
+            onNumberChange={(v) => { setPhoneNumber(v); setTouched((t) => ({ ...t, phone: true })) }}
+            error={phoneError}
+            disabled={phase !== "form"}
           />
-          {phoneError && <p className="text-xs text-red-500 mt-1">Please enter your phone number.</p>}
+          {phoneError && <p className="text-xs text-red-500 mt-1">Please enter a valid phone number.</p>}
         </div>
 
         <div>

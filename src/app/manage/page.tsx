@@ -7,12 +7,13 @@ import { Booking, Consultant } from "@/lib/types"
 import { formatCurrency, formatDateDisplay, formatTimeDisplay } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
-  Phone, Search, CalendarDays, Clock, Monitor, MapPin,
+  Search, CalendarDays, Clock, Monitor, MapPin,
   XCircle, Loader2, AlertTriangle, CalendarCheck, ArrowRight,
   CheckCircle2, MessageSquare, RefreshCw, ShieldCheck, Pencil,
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import ModifyPanel from "@/components/booking/ModifyPanel"
+import PhoneInput, { buildPhone } from "@/components/ui/PhoneInput"
 
 type Step = "lookup" | "otp" | "results"
 
@@ -33,7 +34,8 @@ function StatusBadge({ status }: { status: Booking["status"] }) {
 
 export default function ManagePage() {
   const [step, setStep] = useState<Step>("lookup")
-  const [phone, setPhone] = useState("")
+  const [countryCode, setCountryCode] = useState("+965")
+  const [phoneNumber, setPhoneNumber] = useState("")
   const [submittedPhone, setSubmittedPhone] = useState("")
 
   // OTP state
@@ -75,15 +77,16 @@ export default function ManagePage() {
 
   async function handleSendOTP(e: React.FormEvent) {
     e.preventDefault()
-    const trimmed = phone.trim()
-    if (!trimmed) return
+    const digits = phoneNumber.replace(/\D/g, "")
+    if (digits.length < 7) return
+    const fullPhone = buildPhone(countryCode, phoneNumber)
     setSendingOtp(true)
     setError("")
 
     const res = await fetch("/api/otp/send", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ phone: trimmed }),
+      body: JSON.stringify({ phone: fullPhone }),
     })
 
     setSendingOtp(false)
@@ -94,7 +97,7 @@ export default function ManagePage() {
 
     const data = await res.json()
     setSandboxCode(data.sandboxCode ?? null)
-    setSubmittedPhone(trimmed)
+    setSubmittedPhone(fullPhone)
     setOtp("")
     setOtpError("")
     setStep("otp")
@@ -188,26 +191,23 @@ export default function ManagePage() {
         {/* Step 1 — Phone lookup */}
         {step === "lookup" && (
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
-            <form onSubmit={handleSendOTP} className="flex gap-3">
-              <div className="relative flex-1">
-                <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
-                <input
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  placeholder="+965 XXXX XXXX"
-                  className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-gray-200 text-sm text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-rose-500 focus:border-transparent"
-                />
-              </div>
+            <form onSubmit={handleSendOTP} className="space-y-3">
+              <PhoneInput
+                countryCode={countryCode}
+                number={phoneNumber}
+                onCountryChange={setCountryCode}
+                onNumberChange={setPhoneNumber}
+                placeholder="XXXX XXXX"
+              />
               <Button
                 type="submit"
-                disabled={sendingOtp || !phone.trim()}
-                className="bg-rose-500 hover:bg-rose-600 text-white font-semibold shrink-0 gap-2"
+                disabled={sendingOtp || phoneNumber.replace(/\D/g, "").length < 7}
+                className="w-full bg-rose-500 hover:bg-rose-600 text-white font-semibold gap-2"
               >
                 {sendingOtp ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : (
-                  <><ShieldCheck className="h-4 w-4" /> Send Code</>
+                  <><ShieldCheck className="h-4 w-4" /> Send Verification Code</>
                 )}
               </Button>
             </form>
