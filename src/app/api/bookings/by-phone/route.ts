@@ -2,10 +2,12 @@ export const dynamic = "force-dynamic"
 
 import { NextResponse } from "next/server"
 import { createServerClient } from "@/lib/supabase"
+import { normalizePhone } from "@/lib/utils"
 
 export async function GET(req: Request) {
   const { searchParams } = new URL(req.url)
-  const phone = searchParams.get("phone")?.trim()
+  const raw = searchParams.get("phone")?.trim()
+  const phone = raw ? normalizePhone(raw) : undefined
 
   if (!phone) {
     return NextResponse.json({ error: "Phone number required" }, { status: 400 })

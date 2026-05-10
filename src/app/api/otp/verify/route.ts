@@ -1,4 +1,5 @@
 import { verifyOTP } from "@/lib/otp"
+import { normalizePhone } from "@/lib/utils"
 
 export async function POST(req: Request) {
   const body = await req.json().catch(() => ({}))
@@ -9,7 +10,7 @@ export async function POST(req: Request) {
     return Response.json({ error: "Phone and code are required" }, { status: 400 })
   }
 
-  const result = await verifyOTP(phone.trim(), code.trim())
+  const result = await verifyOTP(normalizePhone(phone), code.trim())
 
   if (result === "valid") {
     return Response.json({ valid: true })

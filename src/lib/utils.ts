@@ -14,6 +14,11 @@ export function formatDateDisplay(dateStr: string): string {
   return format(parseISO(dateStr), "EEEE, MMMM d, yyyy")
 }
 
+/** Strips all whitespace from a phone number so +965 1234 5678 → +96512345678 */
+export function normalizePhone(phone: string): string {
+  return phone.replace(/\s+/g, "").trim()
+}
+
 export function formatTimeDisplay(time: string): string {
   const [hours, minutes] = time.split(":")
   const h = parseInt(hours)

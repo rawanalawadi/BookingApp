@@ -4,6 +4,7 @@ import { NextResponse } from "next/server"
 import { auth } from "@/auth"
 import { addBookingServer, getBookingsByUser } from "@/lib/bookings-server"
 import { Booking } from "@/lib/types"
+import { normalizePhone } from "@/lib/utils"
 
 export async function GET() {
   const session = await auth()
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       id:                    crypto.randomUUID(),
       userEmail:             session?.user?.email ?? undefined,
       customerName:          customerName.trim(),
-      customerPhone:         customerPhone.trim(),
+      customerPhone:         normalizePhone(customerPhone),
       consultantId,
       consultantName,
       consultantSpecialty,

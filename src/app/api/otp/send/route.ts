@@ -1,5 +1,6 @@
 import { createOTP } from "@/lib/otp"
 import { sendWhatsApp } from "@/lib/whatsapp"
+import { normalizePhone } from "@/lib/utils"
 
 function isTwilioConfigured(): boolean {
   const sid = process.env.TWILIO_ACCOUNT_SID
@@ -14,7 +15,8 @@ export async function POST(req: Request) {
     return Response.json({ error: "Phone number is required" }, { status: 400 })
   }
 
-  const code = createOTP(phone.trim())
+  const normalized = normalizePhone(phone)
+  const code = createOTP(normalized)
   const message = [
     `🔐 *ConsultEase Verification Code*`,
     ``,
@@ -23,7 +25,7 @@ export async function POST(req: Request) {
     `This code expires in 10 minutes. Do not share it with anyone.`,
   ].join("\n")
 
-  await sendWhatsApp(phone.trim(), message)
+  await sendWhatsApp(normalized, message)
 
   // In sandbox mode (Twilio not configured), return the code so it can be
   // displayed on-screen for testing. Never returned when Twilio is live.
