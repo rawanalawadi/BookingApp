@@ -325,9 +325,16 @@ export async function POST(req: Request) {
           })}-->`
           controller.enqueue(encoder.encode(marker))
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error("[chat-book] error:", err)
-        controller.enqueue(encoder.encode("\n\nSorry, something went wrong. Please try again."))
+        const msg = err instanceof Error ? err.message : ""
+        if (msg.toLowerCase().includes("insufficient credits") || msg.includes("402")) {
+          controller.enqueue(encoder.encode("⚠️ Your OpenRouter account has no credits. Add credits at https://openrouter.ai/settings/credits and try again."))
+        } else if (msg.toLowerCase().includes("api key") || msg.includes("401")) {
+          controller.enqueue(encoder.encode("⚠️ Invalid API key. Please check your OPENROUTER_API_KEY in .env.local."))
+        } else {
+          controller.enqueue(encoder.encode("Sorry, something went wrong. Please try again."))
+        }
       } finally {
         controller.close()
       }
