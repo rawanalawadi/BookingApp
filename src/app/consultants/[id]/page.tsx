@@ -80,7 +80,7 @@ export default async function ConsultantDetailPage({ params }: Props) {
           </div>
 
           {/* Right: Booking panel */}
-          <div className="lg:col-span-1 lg:sticky lg:top-24">
+          <div className="lg:col-span-1 lg:sticky lg:top-24 lg:max-h-[calc(100vh-7rem)] lg:overflow-y-auto lg:rounded-2xl">
             <BookingPanel consultant={consultant} />
           </div>
         </div>
