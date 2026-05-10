@@ -31,7 +31,7 @@ function Modal({
         onClick={onClose}
       />
       <div
-        className={`relative bg-white w-full sm:rounded-2xl shadow-2xl flex flex-col h-[92vh] sm:h-auto sm:max-h-[90vh] ${className ?? ""}`}
+        className={`relative bg-white w-full sm:rounded-2xl shadow-2xl flex flex-col h-[92vh] sm:h-auto sm:max-h-[85vh] overflow-hidden ${className ?? ""}`}
       >
         <button
           onClick={onClose}
