@@ -10,10 +10,21 @@ import { formatDateDisplay, formatTimeDisplay, cn } from "@/lib/utils"
 import { useCurrency } from "@/contexts/CurrencyContext"
 import {
   CalendarCheck, Loader2, Monitor, MapPin, User, Phone,
-  ShieldCheck, MessageSquare, RefreshCw,
+  ShieldCheck, MessageSquare, RefreshCw, CreditCard,
 } from "lucide-react"
 
-type Phase = "form" | "otp" | "paying"
+type Phase = "form" | "otp" | "method" | "paying"
+
+interface PaymentMethod {
+  id: number
+  nameEn: string
+  nameAr: string
+  code: string
+  imageUrl: string
+  totalAmount: number
+  serviceCharge: number
+  currencyIso: string
+}
 
 interface Props {
   consultant: Consultant
@@ -39,6 +50,12 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
   const [sending, setSending] = useState(false)
   const [verifying, setVerifying] = useState(false)
   const [sandboxCode, setSandboxCode] = useState<string | null>(null)
+
+  // Payment method phase
+  const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [selectedMethod, setSelectedMethod] = useState<PaymentMethod | null>(null)
+  const [loadingMethods, setLoadingMethods] = useState(false)
+  const [pendingBookingId, setPendingBookingId] = useState<string | null>(null)
 
   const nameError = touched.name && !name.trim()
   const phoneError = touched.phone && !phone.trim()
@@ -90,8 +107,8 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
       return
     }
 
-    // Verified — create booking and redirect to payment
-    setPhase("paying")
+    // Verified — create booking then show payment method picker
+    setVerifying(true)
 
     const bookingRes = await fetch("/api/bookings", {
       method: "POST",
@@ -112,22 +129,42 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
     })
 
     const bookingData = await bookingRes.json()
+    setVerifying(false)
     if (!bookingRes.ok) {
       toast.error(bookingData.error ?? "Failed to create booking.")
       setPhase("otp")
       return
     }
 
+    setPendingBookingId(bookingData.booking.id)
+    setLoadingMethods(true)
+    setPhase("method")
+
+    // Fetch available payment methods
+    const methodsRes = await fetch("/api/payment/methods", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: consultant.hourlyRate, currency: "KWD" }),
+    })
+    const methodsData = await methodsRes.json()
+    setLoadingMethods(false)
+    setPaymentMethods(methodsData.methods ?? [])
+  }
+
+  async function proceedToPayment() {
+    if (!pendingBookingId || !selectedMethod) return
+    setPhase("paying")
+
     const payRes = await fetch("/api/payment/initiate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ bookingId: bookingData.booking.id }),
+      body: JSON.stringify({ bookingId: pendingBookingId, methodId: selectedMethod.id }),
     })
 
     const payData = await payRes.json()
     if (!payRes.ok) {
       toast.error("Payment initiation failed. Please try again.")
-      setPhase("otp")
+      setPhase("method")
       return
     }
 
@@ -312,6 +349,62 @@ export default function BookingForm({ consultant, selectedDate, selectedSlot, se
             <><CalendarCheck className="mr-2 h-5 w-5" /> Verify & Proceed to Payment</>
           )}
         </Button>
+      )}
+
+      {/* Step: Payment method selection */}
+      {phase === "method" && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <p className="text-sm font-semibold text-gray-700 flex items-center gap-1.5">
+              <CreditCard className="h-4 w-4 text-rose-500" /> Choose Payment Method
+            </p>
+            <button
+              onClick={() => { setPhase("otp"); setPendingBookingId(null); setSelectedMethod(null) }}
+              className="text-xs text-gray-400 hover:text-gray-600"
+            >
+              ← Back
+            </button>
+          </div>
+
+          {loadingMethods ? (
+            <div className="flex items-center justify-center py-8 gap-2 text-gray-400">
+              <Loader2 className="h-5 w-5 animate-spin" />
+              <span className="text-sm">Loading payment methods…</span>
+            </div>
+          ) : (
+            <div className="grid grid-cols-2 gap-2">
+              {paymentMethods.map((method) => (
+                <button
+                  key={method.id}
+                  onClick={() => setSelectedMethod(method)}
+                  className={cn(
+                    "flex flex-col items-center gap-2 p-3 rounded-xl border-2 text-xs font-medium transition-all",
+                    selectedMethod?.id === method.id
+                      ? "border-rose-500 bg-rose-50 text-rose-700"
+                      : "border-gray-200 bg-white text-gray-600 hover:border-rose-300 hover:bg-rose-50"
+                  )}
+                >
+                  {method.imageUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={method.imageUrl} alt={method.nameEn} className="h-7 object-contain" />
+                  ) : (
+                    <CreditCard className="h-7 w-7 text-gray-400" />
+                  )}
+                  <span>{method.nameEn}</span>
+                </button>
+              ))}
+            </div>
+          )}
+
+          <Button
+            onClick={proceedToPayment}
+            disabled={!selectedMethod || loadingMethods}
+            className="w-full h-11 bg-rose-500 hover:bg-rose-600 text-white font-semibold shadow-md disabled:opacity-60"
+          >
+            <CalendarCheck className="mr-2 h-5 w-5" />
+            Pay {selectedMethod ? `with ${selectedMethod.nameEn}` : ""}
+          </Button>
+        </div>
       )}
 
       {phase === "paying" && (

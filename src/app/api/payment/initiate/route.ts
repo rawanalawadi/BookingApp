@@ -20,7 +20,7 @@ function callbackBase() {
 }
 
 export async function POST(req: Request) {
-  const { bookingId } = await req.json().catch(() => ({}))
+  const { bookingId, methodId } = await req.json().catch(() => ({}))
   if (!bookingId) {
     return NextResponse.json({ error: "Missing bookingId" }, { status: 400 })
   }
@@ -41,7 +41,7 @@ export async function POST(req: Request) {
         Authorization: `Bearer ${MF_API_KEY}`,
       },
       body: JSON.stringify({
-        PaymentMethodId:    2,                // KNET / default for test key
+        PaymentMethodId:    methodId ?? 1,    // default to KNET if none selected
         CustomerName:       booking.customerName,
         DisplayCurrencyIso: "KWD",
         MobileCountryCode:  "+965",

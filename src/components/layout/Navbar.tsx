@@ -87,7 +87,20 @@ export default function Navbar() {
               {link.label}
             </Link>
           ))}
-          <div className="pt-2 border-t border-gray-100 mt-2">
+          <div className="pt-2 border-t border-gray-100 mt-2 space-y-2">
+            {/* Currency selector */}
+            <div className="px-3 py-2">
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1.5">Currency</p>
+              <select
+                value={currency.code}
+                onChange={(e) => { setCurrencyCode(e.target.value); setMobileOpen(false) }}
+                className="w-full h-9 px-3 rounded-lg border border-gray-200 text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-rose-500 bg-white cursor-pointer"
+              >
+                {CURRENCIES.map((c) => (
+                  <option key={c.code} value={c.code}>{c.code} — {c.name}</option>
+                ))}
+              </select>
+            </div>
             {session ? (
               <div className="space-y-2">
                 <div className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700"><User className="h-4 w-4 text-rose-500" />{session.user?.name}</div>
