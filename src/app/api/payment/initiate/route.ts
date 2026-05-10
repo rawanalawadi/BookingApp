@@ -46,7 +46,7 @@ export async function POST(req: Request) {
         DisplayCurrencyIso: "KWD",
         MobileCountryCode:  "+965",
         CustomerMobile:     booking.customerPhone.replace(/\D/g, "").slice(-8), // last 8 digits
-        CustomerEmail:      booking.userEmail ?? "",
+        CustomerEmail:      booking.userEmail || "noreply@consultease.com",
         InvoiceValue:       booking.hourlyRate,
         CallBackUrl:        `${base}/api/payment/callback`,
         ErrorUrl:           `${base}/api/payment/callback`,
