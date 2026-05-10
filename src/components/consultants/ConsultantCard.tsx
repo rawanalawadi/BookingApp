@@ -31,7 +31,7 @@ function Modal({
         onClick={onClose}
       />
       <div
-        className={`relative bg-white w-full sm:rounded-2xl shadow-2xl overflow-hidden max-h-[92vh] overflow-y-auto ${className ?? ""}`}
+        className={`relative bg-white w-full sm:rounded-2xl shadow-2xl flex flex-col h-[92vh] sm:h-auto sm:max-h-[90vh] ${className ?? ""}`}
       >
         <button
           onClick={onClose}
@@ -123,7 +123,8 @@ export default function ConsultantCard({ consultant }: { consultant: Consultant 
 
       {/* Info modal */}
       <Modal open={infoOpen} onClose={() => setInfoOpen(false)} className="sm:max-w-sm">
-        <div className="bg-gradient-to-r from-rose-500 to-orange-500 px-6 pt-6 pb-5 flex gap-4 items-start">
+        {/* sticky header */}
+        <div className="shrink-0 bg-gradient-to-r from-rose-500 to-orange-500 px-6 pt-6 pb-5 flex gap-4 items-start rounded-t-2xl sm:rounded-t-2xl">
           <div className="relative h-16 w-16 rounded-2xl overflow-hidden ring-2 ring-white/40 shrink-0">
             <Image src={consultant.avatarUrl} alt={consultant.name} fill className="object-cover" />
           </div>
@@ -140,7 +141,8 @@ export default function ConsultantCard({ consultant }: { consultant: Consultant 
           </div>
         </div>
 
-        <div className="px-6 py-5 space-y-4">
+        {/* scrollable body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-4">
           <div>
             <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">About</h3>
             <p className="text-sm text-gray-700 leading-relaxed">{consultant.bio}</p>
@@ -172,7 +174,8 @@ export default function ConsultantCard({ consultant }: { consultant: Consultant 
 
       {/* Booking modal */}
       <Modal open={bookingOpen} onClose={() => setBookingOpen(false)} className="sm:max-w-md">
-        <div className="bg-gradient-to-r from-rose-500 to-orange-500 px-5 py-4 flex items-center gap-3">
+        {/* sticky header */}
+        <div className="shrink-0 bg-gradient-to-r from-rose-500 to-orange-500 px-5 py-4 flex items-center gap-3 rounded-t-2xl sm:rounded-t-2xl">
           <div className="relative h-9 w-9 rounded-full overflow-hidden ring-2 ring-white/40 shrink-0">
             <Image src={consultant.avatarUrl} alt={consultant.name} fill className="object-cover" />
           </div>
@@ -181,7 +184,8 @@ export default function ConsultantCard({ consultant }: { consultant: Consultant 
             <p className="text-rose-100 text-xs">{consultant.specialty} · {format(consultant.hourlyRate)}/hr</p>
           </div>
         </div>
-        <div className="p-4">
+        {/* scrollable body */}
+        <div className="flex-1 overflow-y-auto p-4">
           <BookingPanel consultant={consultant} />
         </div>
       </Modal>
